@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:weather_kokorkin/Form/second_screen.dart';
-import 'package:weather_kokorkin/Form/user.dart';
-import 'package:weather_kokorkin/Form/register_form_page.dart';
-// as http
-import 'package:http/http.dart' as http;
+import 'package:weather_kokorkin/offices.dart';
 
 void main() {
   runApp(const WeatherMainScreen());
@@ -15,22 +11,7 @@ class WeatherMainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      onGenerateRoute: (settings) {
-        switch (settings.name) {
-          case '/second':
-            return MaterialPageRoute(
-              builder: (context) => SecondScreen(user: settings.arguments as User,
-              ),
-            );
-
-          default:
-            return MaterialPageRoute(
-              builder: (context) => const RegisterFormPage(),
-            );
-        }
-      },
-      home: const RegisterFormPage(),
-      title: 'Weather App',
+      home: const HomePage(),
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -38,8 +19,56 @@ class WeatherMainScreen extends StatelessWidget {
   }
 }
 
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
-Future<http.Response>  getData() async {
-  const url = 'https://about.google/static/data/locations.json';
-  return  await http.get(Uri.parse(url));
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late Future<OfficesList> officesList;
+
+  @override
+  void initState() {
+    officesList = getOfficesList();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Offices List'),
+      ),
+      body: FutureBuilder(
+        future: officesList,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return ListView.builder(
+              itemCount: snapshot.data!.offices.length,
+              itemBuilder: (context, index) {
+                return Card(
+                  child: ListTile(
+                    isThreeLine: true,
+                    title: Text(snapshot.data!.offices[index].name),
+                    subtitle: Text(snapshot.data!.offices[index].address),
+                    leading:
+                        Image.network(snapshot.data!.offices[index].image),
+                  ),
+                );
+              },
+            );
+          } else if (snapshot.hasError) {
+            return Center(child: SelectableText('${snapshot.error}' , 
+            
+            ));
+          }
+
+          return const Center(child: CircularProgressIndicator());
+        },
+        
+      ),
+    );
+  }
 }
