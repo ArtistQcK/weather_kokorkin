@@ -8,7 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:weather_kokorkin/main.dart';
+import 'package:weather_kokorkin/generate/mainGenerate.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
